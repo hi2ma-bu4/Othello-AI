@@ -1,0 +1,96 @@
+body {
+	background-color: #f4f4f9;
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+h1 {
+	color: #333;
+	margin: 20px 0;
+}
+
+#game-container {
+	display: inline-block;
+	margin-top: 20px;
+}
+
+#controls {
+	margin-top: 10px;
+	text-align: center;
+}
+
+#controls button {
+	background-color: #4caf50;
+	border: none;
+	border-radius: 5px;
+	color: white;
+	cursor: pointer;
+	font-size: 16px;
+	padding: 10px 20px;
+}
+
+#controls button:hover {
+	background-color: #45a049;
+}
+
+#board {
+	display: grid;
+	gap: 2px;
+	grid-template-columns: repeat(8, 50px);
+	grid-template-rows: repeat(8, 50px);
+}
+
+.cell {
+	align-items: center;
+	background-color: #008000;
+	border: 1px solid #004d00;
+	cursor: pointer;
+	display: flex;
+	height: 50px;
+	justify-content: center;
+	width: 50px;
+}
+
+.cell .prediction {
+	color: #888;
+	font-size: 12px;
+	pointer-events: none;
+}
+
+.cell.black {
+	background-color: black;
+	border-radius: 50%;
+}
+
+.cell.white {
+	background-color: white;
+	border-radius: 50%;
+}
+
+.cell.highlight {
+	background-color: #ffeb3b;
+}
+
+#info {
+	margin-top: 20px;
+}
+
+.cell.flip {
+	animation: flipAnimation .5s ease-in-out;
+}
+
+@keyframes flipAnimation {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(0);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
