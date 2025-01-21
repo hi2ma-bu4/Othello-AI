@@ -1,12 +1,14 @@
 class Othello {
 	constructor() {
-		this.aiMemory = {}; // ユーザーの手を記憶
-		this.animationDuration = 500; // アニメーションの時間 (ミリ秒)
+		this.aiMemory = {};
+		this.animationDuration = 500;
 		this.waitTurn = 100;
-		this.isAIPlaying = false; // AIが動いているかどうかを管理するフラグ
+		this.isAIPlaying = false;
+		this.interval = null;
+		this.winStats = { black: 0, white: 0 }; // 勝敗数を記録
 
 		document.getElementById("startAIvsAI").addEventListener("click", () => {
-			this.resetGame(); // 盤面をリセットして新しいゲームを開始
+			this.resetGame();
 			this.startAIvsAI();
 		});
 
@@ -22,6 +24,7 @@ class Othello {
 
 	resetGame() {
 		// 盤面を初期状態にリセット
+		if (this.interval) clearInterval(this.interval);
 		this._isEnd = false;
 		this.board = Array(8)
 			.fill(null)
@@ -159,13 +162,13 @@ class Othello {
 
 		this.board[row][col] = this.currentPlayer;
 		this.flipPieces(row, col, this.currentPlayer);
-		const score = this.evaluateMove(row, col); // ユーザーの手のスコアを評価
-		this.learnUserPattern(row, col, score); // スコアを学習
 		this.currentPlayer = this.currentPlayer === "black" ? "white" : "black";
 		this.renderBoard();
 		this.updateInfo();
 
-		if (this.currentPlayer === "white" && !this.isAIPlaying) {
+		if (this.isGameOver()) {
+			this.endGame();
+		} else if (this.currentPlayer === "white" && !this.isAIPlaying) {
 			this.isAIPlaying = true;
 			setTimeout(() => {
 				this.aiMove();
@@ -323,12 +326,6 @@ class Othello {
 		let interval;
 
 		const aiPlay = () => {
-			if (this.isGameOver()) {
-				clearInterval(interval); // ゲーム終了時にAIの対戦ループを停止
-				this.displayWinner();
-				return;
-			}
-
 			const validMoves = this.getAllValidMoves(this.currentPlayer);
 			if (validMoves.length > 0) {
 				if (this.currentPlayer === "black") {
@@ -346,7 +343,7 @@ class Othello {
 		};
 
 		// AIのターンを1秒おきに進める
-		interval = setInterval(aiPlay, this.waitTurn * 2);
+		this.interval = setInterval(aiPlay, this.waitTurn * 2);
 	}
 
 	getBestMove(validMoves) {
@@ -375,26 +372,38 @@ class Othello {
 		return validMoves;
 	}
 
-	displayWinner() {
+	endGame() {
+		// 黒と白の石の数をカウント
 		const blackCount = this.board.flat().filter((cell) => cell === "black").length;
 		const whiteCount = this.board.flat().filter((cell) => cell === "white").length;
 
+		// 勝敗を判定してカウントを更新
 		let message = "";
 		if (blackCount > whiteCount) {
+			this.winStats.black++;
 			message = "黒の勝ち！";
 		} else if (whiteCount > blackCount) {
+			this.winStats.white++;
 			message = "白の勝ち！";
 		} else {
 			message = "引き分け！";
 		}
+		//console.log(message);
 
-		console.log(message);
+		// 勝敗数を更新
+		this.updateWinStats();
 
+		// ゲームをリセット
 		const e = this._isEnd;
-		this.resetGame(); // 盤面をリセットして新しいゲームを開始
+		this.resetGame();
 		if (!e) {
 			this.startAIvsAI();
 		}
+	}
+
+	updateWinStats() {
+		const winStatsElement = document.getElementById("win-stats");
+		winStatsElement.textContent = `黒の勝ち: ${this.winStats.black} | 白の勝ち: ${this.winStats.white}`;
 	}
 }
 
